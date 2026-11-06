@@ -13,14 +13,16 @@
 
 ## Project Overview
 
-Author: Denise Case
+Author: Angie Crews
 
-Date: 2026 October
+Date: 2026 November
 
-This project introduces rolling monitoring.
+This project introduces rolling monitoring using
+Missouri State Expenditures travel data.
 
-The goal is to study measurements over time
-and use rolling statistics to reveal changes in system behavior.
+The goal is to use rolling averages to monitor
+travel spending over time, identify trends,
+and detect unusual changes in expenditures.
 
 The project is configured in
 [pyproject.toml](pyproject.toml).
