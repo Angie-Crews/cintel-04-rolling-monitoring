@@ -1,7 +1,7 @@
 """rolling_monitor.py - Project script (example).
 
-Author: Your Name Here
-Date: 2026-mm-dd
+Author: Angie Crews
+Date: 2026-11-06
 
 Time-Series System Metrics Data
 
