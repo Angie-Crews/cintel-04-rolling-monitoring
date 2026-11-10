@@ -1,8 +1,9 @@
 # cintel-04-rolling-monitoring
 
+
 [![Python 3.14](https://img.shields.io/badge/python-3.14%2B-blue?logo=python)](pyproject.toml)
-[![CI](https://github.com/denisecase/cintel-04-rolling-monitoring/actions/workflows/ci-python-zensical.yml/badge.svg)](https://github.com/denisecase/cintel-04-rolling-monitoring/actions/workflows/ci-python-zensical.yml)
-[![Documentation](https://img.shields.io/badge/docs-site-blue?logo=github)](https://denisecase.github.io/cintel-04-rolling-monitoring/)
+[![CI](https://github.com/Angie-Crews/cintel-04-rolling-monitoring/actions/workflows/ci-python-zensical.yml/badge.svg)](https://github.com/Angie-Crews/cintel-04-rolling-monitoring/actions/workflows/ci-python-zensical.yml)
+[![Documentation](https://img.shields.io/badge/docs-site-blue?logo=github)](https://angie-crews.github.io/cintel-04-rolling-monitoring/)
 
 [![uv managed](https://img.shields.io/badge/uv-managed-DE5FE9)](https://docs.astral.sh/uv/)
 [![ty type checked](https://img.shields.io/badge/ty-type_checked-2F80ED)](https://docs.astral.sh/ty/)
@@ -29,98 +30,168 @@ The project is configured in
 
 ## Data
 
-The example uses time-series system metrics from `data/`.
+This project uses Missouri State Expenditures data
+for fiscal years 2022 through 2026.
 
-Each observation includes:
+The datasets were downloaded from the
+[Missouri Open Data Portal](https://data.mo.gov/).
 
-- `timestamp` - time of observation.
-- `requests` - number of requests handled.
-- `errors` - number of failed requests.
-- `total_latency_ms` - total response time in milliseconds.
+The analysis includes:
+
+- 526,244 total expenditure records.
+- 178,028 records classified as TRAVEL.
+- Five fiscal years of annual spending data.
+
+Each record includes fiscal year, agency name,
+category, detail description, vendor name,
+and payment amount.
+
+The five original CSV datasets are stored locally
+in `data/` and are excluded from GitHub because
+of the project's file-size restrictions.
+
+The source datasets can be downloaded from the
+Missouri Open Data Portal.
+
+### Source Dataset Files
+
+The following five CSV files are required
+to run the Missouri travel analysis:
+
+| Fiscal Year | CSV Filename |
+|---|---|
+| 2022 | `2022_State_Expenditures_20261109.csv` |
+| 2023 | `2023_State_Expenditures_20261109.csv` |
+| 2024 | `2024_State_Expenditures_20261109.csv` |
+| 2025 | `2025_State_Expenditures_20261109.csv` |
+| 2026 | `2026_State_Expenditures_20261029.csv` |
+
+Download the datasets from the
+[Missouri Open Data Portal](https://data.mo.gov/)
+and save them in the `data/` folder.
+
+The filenames must match those referenced in
+`src/cintel/missouri_travel_monitor.py`.
 
 ## Approach
 
-The pipeline uses Polars to:
+This project uses Python and Polars to monitor
+Missouri travel spending across five fiscal years.
 
-1. Read and order observations by timestamp.
-2. Calculate rolling averages over a defined window.
-3. Save the monitoring results for interpretation.
+The analysis follows these steps:
 
-Explore these project components:
+1. Load and combine expenditure datasets for 2022–2026.
+2. Filter records classified as `TRAVEL`.
+3. Convert payment amounts into numeric values.
+4. Calculate total travel spending for each fiscal year.
+5. Calculate a three-year rolling average.
+6. Save the results to `artifacts/missouri_travel_rolling.csv`.
+7. Generate a chart comparing annual spending with
+   the three-year rolling average.
 
-- [pyproject.toml](pyproject.toml) - project configuration and dependencies.
-- [src/cintel/rolling_monitor.py](src/cintel/rolling_monitor.py) - rolling monitoring pipeline.
-- [data/](data/) - time-series data.
-- [artifacts/](artifacts/) - generated monitoring results.
-- [tests/](tests/) - automated tests.
-- [.github/workflows/](.github/workflows/) - automated checks and documentation deployment.
-- [docs/](docs/) - project documentation.
+The rolling average uses the current fiscal year
+and the two preceding years.
+
+This helps smooth annual fluctuations and
+identify longer-term spending trends.
 
 ## Run the Project
 
-Follow the [Professional Python Workflow Guide](https://denisecase.github.io/pro-analytics-02/)
-to set up your machine and project environment.
+### Set Up the Environment
 
-From a VS Code terminal in the project root:
+Clone the repository and open the project folder
+in VS Code.
 
-```shell
-uv run python -m cintel.rolling_monitor
+Install the project dependencies:
+
+```powershell
+uv sync
 ```
 
-## Run the Reactive App
+### Run the Missouri Travel Analysis
 
-From a VS Code terminal in the project root
-(hit CTRL + c to quit):
+Download the five annual expenditure datasets
+(2022–2026) from the
+[Missouri Open Data Portal](https://data.mo.gov/).
 
-```shell
-uv run marimo run  src/cintel/app.py
+Place the CSV files in the `data/` folder using
+the filenames expected by
+`src/cintel/missouri_travel_monitor.py`.
+
+Run the analysis:
+
+```powershell
+uv run python -m cintel.missouri_travel_monitor
+```
+
+The script generates two output files:
+
+- `artifacts/missouri_travel_rolling.csv`
+- `docs/images/missouri_travel_rolling.png`
+
+### Run the Tests
+
+```powershell
+uv run pytest
+```
+
+### Build the Documentation
+
+```powershell
+uv run zensical build
 ```
 
 ## Results
 
-The pipeline calculates rolling averages and writes
-`artifacts/rolling_metrics.csv`.
-Review the rolling measurements to understand
-how smoothing can reveal trends and reduce short-term variation.
+The analysis identified 178,028 Missouri travel
+expenditure records from fiscal years 2022–2026.
 
-Successful execution produces a terminal message:
+### Annual Travel Spending
 
-```shell
-========================
-Pipeline executed successfully!
-========================
-```
+| Fiscal Year | Total Travel Spending | 3-Year Rolling Average |
+|---|---:|---:|
+| 2022 | $22.33M | N/A |
+| 2023 | $32.95M | N/A |
+| 2024 | $38.11M | $31.13M |
+| 2025 | $39.23M | $36.76M |
+| 2026 | $39.81M | $39.05M |
 
-A `project.log` file is created in the project root.
+Annual travel spending increased across all five
+fiscal years.
 
-This confirms that the Python pipeline executes
-and the logging system works.
+The three-year rolling average increased from
+$31.13 million in 2024 to $39.05 million in 2026,
+indicating an upward spending trend.
 
-## Verification
+### Travel Spending Chart
 
-Run the automated tests:
+![Missouri Travel Spending and Three-Year Rolling Average](docs/images/missouri_travel_rolling.png)
 
-```shell
-uv run pytest
-```
+### Output Files
+
+- [Missouri Travel Rolling Results](artifacts/missouri_travel_rolling.csv)
+- [Project Documentation](docs/index.md)
 
 ## Project Documentation
 
-The [hosted documentation site](https://denisecase.github.io/cintel-04-rolling-monitoring/)
-is published using Zensical and GitHub Pages.
+The complete Missouri Travel Rolling Monitoring
+report is available on GitHub Pages.
 
-The documentation site is used to present the project report,
-covering such sections as data, methods, results, visualizations,
-interpretation, and conclusions.
+**[View Published Project Documentation](https://angie-crews.github.io/cintel-04-rolling-monitoring/)**
 
-## CI/CD and GitHub Actions
+The documentation includes:
 
-This project includes continuous integration and continuous deployment (CI/CD)
-to check project files and publish the docs.
-GitHub Actions include:
+- Project overview and data sources.
+- Methods used to calculate rolling averages.
+- Annual travel spending results and chart.
+- Interpretation of spending trends.
+- Limitations and conclusions.
 
-- [CI: Python and Documentation Checks](https://github.com/denisecase/cintel-04-rolling-monitoring/actions/workflows/ci-python-zensical.yml)
-- [CD: Documentation Deployment](https://github.com/denisecase/cintel-04-rolling-monitoring/actions/workflows/deploy-zensical.yml)
+### Project Links
+
+- [GitHub Repository](https://github.com/Angie-Crews/cintel-04-rolling-monitoring)
+- [Python Analysis Script](src/cintel/missouri_travel_monitor.py)
+- [Results CSV](artifacts/missouri_travel_rolling.csv)
 
 ## Developer Reference
 
@@ -205,7 +276,7 @@ testing, documentation, and code quality.
 
 ## Links
 
-- [Hosted Documentation](https://denisecase.github.io/cintel-04-rolling-monitoring/)
+- [Hosted Documentation](https://angie-crews.github.io/cintel-04-rolling-monitoring/)
 - [Professional Python Workflow Guide](https://denisecase.github.io/pro-analytics-02/)
 - [Citation](CITATION.cff)
 - [License](LICENSE)
