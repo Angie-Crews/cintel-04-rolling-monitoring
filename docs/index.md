@@ -1,136 +1,220 @@
-# Rolling Monitoring of System Metrics
 
-Continuous Intelligence | Project 04 | Example Report
+# Missouri Travel Expenditures: Rolling Monitoring
+
+Continuous Intelligence | Project 04 | Custom Report
 
 ## Overview
 
-This project investigates how rolling statistics
-can reveal patterns in system behavior over time.
+This project analyzes Missouri State Expenditures
+travel spending from fiscal years 2022 through 2026.
 
-Individual measurements may fluctuate.
-Rolling analysis provides a way to examine
-recent behavior while reducing short-term variation.
+Using a three-year rolling average, the analysis
+examines annual travel spending patterns and
+identifies changes in expenditures over time.
+
+The goal is to demonstrate how rolling monitoring
+can help identify spending trends and support
+financial analysis and decision-making.
 
 ## Data
 
-The example dataset contains 15 time-ordered observations
-collected at five-minute intervals.
+The project uses Missouri State Expenditures data
+for fiscal years 2022 through 2026.
 
-Each observation includes:
+The datasets were downloaded from the Missouri
+Open Data Portal (data.mo.gov) and contain
+526,244 expenditure records.
 
-- Timestamp.
-- Number of requests.
-- Number of errors.
-- Total latency in milliseconds.
+Each record includes:
 
-[View Example Dataset](https://github.com/denisecase/cintel-04-rolling-monitoring/blob/main/data/system_metrics_timeseries.csv)
+- Fiscal Year
+- Agency Name
+- Category Description
+- Detail Description
+- Vendor Name
+- Payments Total
+
+The analysis filters records where
+`Category Description` equals `TRAVEL`.
+
+This produces 178,028 travel expenditure records
+across the five fiscal years.
+
+The original datasets are stored in `data/`.
+
+The Python script used for this analysis is
+`src/cintel/missouri_travel_monitor.py`.
 
 ## Methods
 
-The pipeline sorts observations by timestamp
-and computes rolling averages using a window
-of three observations.
+The project uses Python and Polars to analyze
+Missouri travel expenditures from 2022 through 2026.
 
-Rolling averages are calculated for:
+The analysis follows these steps:
 
-- Requests.
-- Errors.
-- Total latency.
+1. Load and combine five annual expenditure datasets.
+2. Filter records where `Category Description` equals `TRAVEL`.
+3. Convert payment amounts from text to numeric values.
+4. Calculate total travel spending for each fiscal year.
+5. Calculate a three-year rolling average of annual spending.
+6. Save the results to `artifacts/missouri_travel_rolling.csv`.
 
-Each completed window summarizes the current
-observation and the two preceding observations.
+### Three-Year Rolling Average
 
-The first two rows have no rolling average
-because the full window is not yet available.
+The rolling average uses the current fiscal year
+and the two preceding fiscal years.
+
+For example, the 2024 rolling average includes
+travel expenditures from 2022, 2023, and 2024.
+
+The first two years have no rolling average
+because three years of data are required.
+
+This method helps smooth annual fluctuations
+and makes longer-term spending patterns easier to identify.
 
 ## Results
 
-The rolling metrics show several changes in activity.
+The analysis identified 178,028 travel expenditure records
+across five fiscal years, with no invalid or missing
+payment amounts.
 
-| Time  | Rolling Requests | Rolling Errors |
-| ----- | ---------------: | -------------: |
-| 08:10 |           135.00 |           3.00 |
-| 08:25 |           171.67 |           6.00 |
-| 08:50 |           145.00 |           2.33 |
-| 09:10 |           198.33 |           7.67 |
+### Annual Travel Spending and Rolling Averages
 
-[View Rolling Monitoring Results](https://github.com/denisecase/cintel-04-rolling-monitoring/blob/main/artifacts/rolling_metrics.csv)
+| Fiscal Year | Travel Records | Total Travel Spending | 3-Year Rolling Average |
+|---|---:|---:|---:|
+| 2022 | 26,629 | $22.33M | N/A |
+| 2023 | 36,560 | $32.95M | N/A |
+| 2024 | 38,691 | $38.11M | $31.13M |
+| 2025 | 38,746 | $39.23M | $36.76M |
+| 2026 | 37,402 | $39.81M | $39.05M |
+
+### Missouri Travel Spending Chart
+
+The chart below compares annual travel spending
+with the three-year rolling average.
+
+![Missouri Travel Spending and Three-Year Rolling Average](images/missouri_travel_rolling.png)
+
+### Key Findings
+
+- Annual travel spending increased across the five fiscal years.
+- The three-year rolling average increased from $31.13 million
+  in 2024 to $39.05 million in 2026.
+- The rolling average helps illustrate the overall spending
+  trend while reducing short-term fluctuations.
+
+### Results File
+
+The complete results are saved in:
+
+[View Missouri Travel Rolling Results](../artifacts/missouri_travel_rolling.csv)
 
 ## Interpretation
 
-The rolling averages reveal periods of increasing
-activity, declining activity, and renewed growth.
+The results show that Missouri travel expenditures
+increased each year from 2022 through 2026.
 
-Toward the end of the observation period,
-request counts and error counts both increase.
+Annual travel spending increased from $22.33 million
+in 2022 to $39.81 million in 2026.
 
-This suggests that growing workload may coincide
-with additional errors, although the data
-does not establish a causal relationship.
+The three-year rolling average also increased,
+indicating a sustained upward spending trend.
+
+From an accounting perspective, these results
+demonstrate how rolling monitoring can help:
+
+- Identify changes in spending patterns.
+- Compare current expenditures with historical trends.
+- Support budget planning and financial oversight.
+- Highlight areas that may require further review.
+
+Although spending increased, the results do not
+necessarily indicate unusual or inappropriate
+expenditures. Additional information would be
+needed to understand the reasons for these changes.
 
 ## Limitations
 
-Rolling averages smooth short-term variation,
-but may delay detection of sudden changes.
+This analysis has several limitations:
 
-The example uses a fixed three-observation window.
-Different window sizes may reveal different patterns.
+- The datasets contain fiscal-year information but
+  do not include individual transaction dates.
+- Rolling averages are calculated using annual totals
+  rather than monthly or daily expenditures.
+- The analysis covers only five fiscal years,
+  limiting the number of rolling averages available.
+- Expenditure data may be updated or revised,
+  which could affect the reported totals.
+- Changes in spending may reflect inflation,
+  travel activity, agency operations, or other factors
+  not evaluated in this project.
 
-The pipeline does not yet classify anomalies
-or issue monitoring alerts.
-
-## Rolling Window Experiment
-
-### Modification
-
-I increased the rolling window size from 3 to 5 observations to see how a larger window would affect the results.
-
-### Prediction
-
-I expected the larger window to produce smoother averages and reduce the effect of short-term changes.
-
-### Results
-
-The pipeline ran successfully with the new window size. The first four rolling averages were blank because five observations were required before calculating an average.
-
-At 8:20 AM, the first rolling averages were:
-
-| Metric | Rolling Average |
-|---|---:|
-| Requests | 150.0 |
-| Errors | 4.2 |
-| Total latency (ms) | 4,750.0 |
-
-### What I Learned
-
-Increasing the window size changes how rolling averages respond to fluctuations. A larger window provides more smoothing but can delay the detection of sudden changes.
+The three-year rolling average identifies general
+spending trends but does not explain why
+expenditures increased or decreased.
 
 ## Conclusion
 
-Rolling monitoring adds a temporal perspective
-to system analysis.
+This project demonstrates how rolling monitoring
+can be applied to Missouri State Expenditures
+travel data from 2022 through 2026.
 
-It provides a foundation for identifying developing
-patterns and determining when further investigation
-may be useful.
+Using Python and Polars, five annual datasets
+were combined to calculate yearly travel spending
+and three-year rolling averages.
+
+The results show an upward spending trend
+throughout the five fiscal years.
+
+This approach provides a simple way to monitor
+financial activity, identify spending trends,
+and support informed budgeting and financial
+decisions.
+
+Future improvements could include analyzing
+travel expenditures by agency and comparing
+spending changes across fiscal years.
 
 ## Documentation Index
 
-- **Home** - this landing page
-- [**Project Instructions**](project-instructions.md)
-- [**Glossary**](glossary.md)
-- [**API**](api.md)
-- [**Reactive App**](./app/index.html)
+- [Project Overview](#overview)
+- [Data](#data)
+- [Methods](#methods)
+- [Results](#results)
+- [Interpretation](#interpretation)
+- [Limitations](#limitations)
+- [Conclusion](#conclusion)
 
 ## Project Links
 
-- [GitHub Repository](https://github.com/denisecase/cintel-04-rolling-monitoring)
-- [Example Pipeline](https://github.com/denisecase/cintel-04-rolling-monitoring/blob/main/src/cintel/rolling_monitor.py)
-- [Results and Artifacts](https://github.com/denisecase/cintel-04-rolling-monitoring/tree/main/artifacts)
+- [GitHub Repository](https://github.com/Angie-Crews/cintel-04-rolling-monitoring)
+- [README](https://github.com/Angie-Crews/cintel-04-rolling-monitoring/blob/main/README.md)
+- [Missouri Travel Monitor Python Script](https://github.com/Angie-Crews/cintel-04-rolling-monitoring/blob/main/src/cintel/missouri_travel_monitor.py)
+- [Missouri Open Data Portal](https://data.mo.gov/)
 
 ## Project Resources
 
-- [Project Instructions](project-instructions.md)
-- [Professional Python Guide](https://denisecase.github.io/pro-analytics-02/)
-- [Professional Python Project Explainer](https://pup-pack.github.io/professional-python-project-explainer/).
-- [Suggested Datasets](https://denisecase.github.io/pro-analytics-02/reference/datasets/cintel/)
+The following resources were used to complete
+this project:
+
+- [Missouri Open Data Portal](https://data.mo.gov/)
+  - Source of the 2022–2026 expenditure datasets.
+- [Polars Documentation](https://docs.pola.rs/)
+  - Used for loading, filtering, and analyzing data.
+- [Python Documentation](https://docs.python.org/3/)
+  - Reference for Python programming.
+- [Zensical Documentation](https://zensical.org/)
+  - Used to build the project documentation site.
+
+### Running the Custom Analysis
+
+Run the following command from the project directory:
+
+```powershell
+uv run python -m cintel.missouri_travel_monitor
+```
+
+The analysis creates the following output file:
+
+`artifacts/missouri_travel_rolling.csv`
