@@ -79,6 +79,32 @@ Different window sizes may reveal different patterns.
 The pipeline does not yet classify anomalies
 or issue monitoring alerts.
 
+## Rolling Window Experiment
+
+### Modification
+
+I increased the rolling window size from 3 to 5 observations to see how a larger window would affect the results.
+
+### Prediction
+
+I expected the larger window to produce smoother averages and reduce the effect of short-term changes.
+
+### Results
+
+The pipeline ran successfully with the new window size. The first four rolling averages were blank because five observations were required before calculating an average.
+
+At 8:20 AM, the first rolling averages were:
+
+| Metric | Rolling Average |
+|---|---:|
+| Requests | 150.0 |
+| Errors | 4.2 |
+| Total latency (ms) | 4,750.0 |
+
+### What I Learned
+
+Increasing the window size changes how rolling averages respond to fluctuations. A larger window provides more smoothing but can delay the detection of sudden changes.
+
 ## Conclusion
 
 Rolling monitoring adds a temporal perspective
